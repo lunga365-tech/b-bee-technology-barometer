@@ -2,12 +2,46 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import { Pool } from "pg";
+import * as fs from "fs";
+import * as path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+
+async function runMigrations() {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    const client = await pool.connect();
+    // Find migration SQL file
+    const migrationDirs = [
+      path.join(process.cwd(), "drizzle"),
+      path.join(__dirname, "../../drizzle"),
+    ];
+    let migrationSql = "";
+    for (const dir of migrationDirs) {
+      const sqlFile = fs.readdirSync(dir).find(f => f.endsWith(".sql"));
+      if (sqlFile) {
+        migrationSql = fs.readFileSync(path.join(dir, sqlFile), "utf-8");
+        break;
+      }
+    }
+    if (!migrationSql) { client.release(); await pool.end(); return; }
+    const statements = migrationSql.split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
+    for (const stmt of statements) {
+      try { await client.query(stmt); } catch (_) { /* already exists */ }
+    }
+    client.release();
+    await pool.end();
+    console.log("[Migration] Database schema applied successfully");
+  } catch (err) {
+    console.warn("[Migration] Could not run migrations:", err);
+  }
+}
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -29,6 +63,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  await runMigrations();
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads

@@ -1,44 +1,60 @@
 import {
   boolean,
   decimal,
-  int,
-  mysqlEnum,
-  mysqlTable,
+  integer,
+  pgEnum,
+  pgTable,
+  serial,
   text,
   timestamp,
   varchar,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/pg-core";
 
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+export const userRoleEnum = pgEnum("user_role", ["user", "admin", "examiner", "verifier"]);
+export const orgTypeEnum = pgEnum("org_type", [
+  "terminal_operator",
+  "ship_agent",
+  "stevedore",
+  "bunker_supplier",
+  "freight_forwarder",
+  "training_provider",
+  "port_service",
+  "shipping_line",
+  "marine_surveyor",
+  "other",
+]);
+export const orgStatusEnum = pgEnum("org_status", ["pending", "approved", "rejected"]);
+export const classificationEnum = pgEnum("classification", ["Emerging", "Established", "Leading"]);
+export const complianceStatusEnum = pgEnum("compliance_status", ["draft", "submitted", "verified", "flagged"]);
+export const alertTypeEnum = pgEnum("alert_type", [
+  "expenditure_learner_gap",
+  "ownership_mismatch",
+  "training_outcome_gap",
+  "documentation_anomaly",
+]);
+export const severityEnum = pgEnum("severity", ["low", "medium", "high"]);
+export const alertStatusEnum = pgEnum("alert_status", ["open", "under_review", "resolved", "escalated"]);
+export const regStatusEnum = pgEnum("reg_status", ["pending", "approved", "rejected"]);
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin", "examiner", "verifier"]).default("user").notNull(),
+  role: userRoleEnum("role").default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-export const organisations = mysqlTable("organisations", {
-  id: int("id").autoincrement().primaryKey(),
+export const organisations = pgTable("organisations", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  orgType: mysqlEnum("orgType", [
-    "terminal_operator",
-    "ship_agent",
-    "stevedore",
-    "bunker_supplier",
-    "freight_forwarder",
-    "training_provider",
-    "port_service",
-    "shipping_line",
-    "marine_surveyor",
-    "other",
-  ]).notNull(),
+  orgType: orgTypeEnum("orgType").notNull(),
   registrationNumber: varchar("registrationNumber", { length: 100 }),
   samsaNumber: varchar("samsaNumber", { length: 100 }),
   tetaAccredited: boolean("tetaAccredited").default(false),
@@ -50,25 +66,25 @@ export const organisations = mysqlTable("organisations", {
   province: varchar("province", { length: 100 }),
   city: varchar("city", { length: 100 }),
   isDemo: boolean("isDemo").default(false).notNull(),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  status: orgStatusEnum("status").default("pending").notNull(),
   approvedAt: timestamp("approvedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type Organisation = typeof organisations.$inferSelect;
 export type InsertOrganisation = typeof organisations.$inferInsert;
 
-export const taiScores = mysqlTable("tai_scores", {
-  id: int("id").autoincrement().primaryKey(),
-  organisationId: int("organisationId").notNull(),
+export const taiScores = pgTable("tai_scores", {
+  id: serial("id").primaryKey(),
+  organisationId: integer("organisationId").notNull(),
   reportingPeriod: varchar("reportingPeriod", { length: 20 }).notNull(),
   digitalInfrastructure: decimal("digitalInfrastructure", { precision: 5, scale: 2 }).notNull(),
   skillsReadiness: decimal("skillsReadiness", { precision: 5, scale: 2 }).notNull(),
   transformationMetrics: decimal("transformationMetrics", { precision: 5, scale: 2 }).notNull(),
   innovationCulture: decimal("innovationCulture", { precision: 5, scale: 2 }).notNull(),
   totalScore: decimal("totalScore", { precision: 5, scale: 2 }).notNull(),
-  classification: mysqlEnum("classification", ["Emerging", "Established", "Leading"]).notNull(),
+  classification: classificationEnum("classification").notNull(),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -76,9 +92,9 @@ export const taiScores = mysqlTable("tai_scores", {
 export type TaiScore = typeof taiScores.$inferSelect;
 export type InsertTaiScore = typeof taiScores.$inferInsert;
 
-export const complianceReports = mysqlTable("compliance_reports", {
-  id: int("id").autoincrement().primaryKey(),
-  organisationId: int("organisationId").notNull(),
+export const complianceReports = pgTable("compliance_reports", {
+  id: serial("id").primaryKey(),
+  organisationId: integer("organisationId").notNull(),
   reportingPeriod: varchar("reportingPeriod", { length: 20 }).notNull(),
   totalSdExpenditure: decimal("totalSdExpenditure", { precision: 15, scale: 2 }),
   fourirSdExpenditure: decimal("fourirSdExpenditure", { precision: 15, scale: 2 }),
@@ -89,69 +105,64 @@ export const complianceReports = mysqlTable("compliance_reports", {
   esdTechContributions: decimal("esdTechContributions", { precision: 15, scale: 2 }),
   esdTechRecognised: boolean("esdTechRecognised").default(false),
   esdScore: decimal("esdScore", { precision: 5, scale: 2 }),
-  claimedLearnersCount: int("claimedLearnersCount"),
-  verifiedLearnersCount: int("verifiedLearnersCount"),
+  claimedLearnersCount: integer("claimedLearnersCount"),
+  verifiedLearnersCount: integer("verifiedLearnersCount"),
   overallComplianceScore: decimal("overallComplianceScore", { precision: 5, scale: 2 }),
-  status: mysqlEnum("status", ["draft", "submitted", "verified", "flagged"]).default("draft").notNull(),
+  status: complianceStatusEnum("status").default("draft").notNull(),
   submittedAt: timestamp("submittedAt"),
   verifiedAt: timestamp("verifiedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type ComplianceReport = typeof complianceReports.$inferSelect;
 export type InsertComplianceReport = typeof complianceReports.$inferInsert;
 
-export const frontingAlerts = mysqlTable("fronting_alerts", {
-  id: int("id").autoincrement().primaryKey(),
-  organisationId: int("organisationId").notNull(),
-  complianceReportId: int("complianceReportId"),
-  alertType: mysqlEnum("alertType", [
-    "expenditure_learner_gap",
-    "ownership_mismatch",
-    "training_outcome_gap",
-    "documentation_anomaly",
-  ]).notNull(),
-  severity: mysqlEnum("severity", ["low", "medium", "high"]).notNull(),
+export const frontingAlerts = pgTable("fronting_alerts", {
+  id: serial("id").primaryKey(),
+  organisationId: integer("organisationId").notNull(),
+  complianceReportId: integer("complianceReportId"),
+  alertType: alertTypeEnum("alertType").notNull(),
+  severity: severityEnum("severity").notNull(),
   description: text("description").notNull(),
   claimedValue: varchar("claimedValue", { length: 100 }),
   verifiedValue: varchar("verifiedValue", { length: 100 }),
   gapPercentage: decimal("gapPercentage", { precision: 5, scale: 2 }),
-  status: mysqlEnum("status", ["open", "under_review", "resolved", "escalated"]).default("open").notNull(),
+  status: alertStatusEnum("status").default("open").notNull(),
   resolvedAt: timestamp("resolvedAt"),
-  resolvedBy: int("resolvedBy"),
+  resolvedBy: integer("resolvedBy"),
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type FrontingAlert = typeof frontingAlerts.$inferSelect;
 export type InsertFrontingAlert = typeof frontingAlerts.$inferInsert;
 
-export const charterReports = mysqlTable("charter_reports", {
-  id: int("id").autoincrement().primaryKey(),
+export const charterReports = pgTable("charter_reports", {
+  id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   reportingPeriod: varchar("reportingPeriod", { length: 20 }).notNull(),
-  totalEntities: int("totalEntities").notNull(),
-  emergingCount: int("emergingCount").notNull(),
-  establishedCount: int("establishedCount").notNull(),
-  leadingCount: int("leadingCount").notNull(),
+  totalEntities: integer("totalEntities").notNull(),
+  emergingCount: integer("emergingCount").notNull(),
+  establishedCount: integer("establishedCount").notNull(),
+  leadingCount: integer("leadingCount").notNull(),
   avgDigitalInfrastructure: decimal("avgDigitalInfrastructure", { precision: 5, scale: 2 }),
   avgSkillsReadiness: decimal("avgSkillsReadiness", { precision: 5, scale: 2 }),
   avgTransformationMetrics: decimal("avgTransformationMetrics", { precision: 5, scale: 2 }),
   avgInnovationCulture: decimal("avgInnovationCulture", { precision: 5, scale: 2 }),
   avgTotalScore: decimal("avgTotalScore", { precision: 5, scale: 2 }),
-  frontingAlertsCount: int("frontingAlertsCount").default(0),
+  frontingAlertsCount: integer("frontingAlertsCount").default(0),
   summary: text("summary"),
-  generatedBy: int("generatedBy"),
+  generatedBy: integer("generatedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type CharterReport = typeof charterReports.$inferSelect;
 export type InsertCharterReport = typeof charterReports.$inferInsert;
 
-export const registrationRequests = mysqlTable("registration_requests", {
-  id: int("id").autoincrement().primaryKey(),
+export const registrationRequests = pgTable("registration_requests", {
+  id: serial("id").primaryKey(),
   orgName: varchar("orgName", { length: 255 }).notNull(),
   orgType: varchar("orgType", { length: 100 }).notNull(),
   registrationNumber: varchar("registrationNumber", { length: 100 }),
@@ -165,9 +176,9 @@ export const registrationRequests = mysqlTable("registration_requests", {
   province: varchar("province", { length: 100 }),
   city: varchar("city", { length: 100 }),
   message: text("message"),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  status: regStatusEnum("status").default("pending").notNull(),
   reviewedAt: timestamp("reviewedAt"),
-  reviewedBy: int("reviewedBy"),
+  reviewedBy: integer("reviewedBy"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

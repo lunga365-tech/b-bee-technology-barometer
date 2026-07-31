@@ -1,5 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import {
   CharterReport,
   ComplianceReport,
@@ -29,7 +30,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+      _db = drizzle(pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -64,7 +66,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
   if (!values.lastSignedIn) values.lastSignedIn = new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-  await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  await db.insert(users).values(values).onConflictDoUpdate({ target: users.openId, set: updateSet });
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -95,8 +97,8 @@ export async function getOrganisationById(id: number): Promise<Organisation | un
 export async function insertOrganisation(org: InsertOrganisation): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const result = await db.insert(organisations).values(org);
-  return (result[0] as any).insertId;
+  const result = await db.insert(organisations).values(org).returning({ id: organisations.id });
+  return result[0].id;
 }
 
 export async function updateOrganisationStatus(id: number, status: "pending" | "approved" | "rejected") {
@@ -126,8 +128,8 @@ export async function getLatestTaiScoreByOrg(organisationId: number): Promise<Ta
 export async function insertTaiScore(score: InsertTaiScore): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const result = await db.insert(taiScores).values(score);
-  return (result[0] as any).insertId;
+  const result = await db.insert(taiScores).values(score).returning({ id: taiScores.id });
+  return result[0].id;
 }
 
 export async function getSectorBaseline() {
@@ -163,8 +165,8 @@ export async function listComplianceReports(organisationId?: number): Promise<Co
 export async function insertComplianceReport(report: InsertComplianceReport): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(complianceReports).values(report);
-  return (result[0] as { insertId: number }).insertId;
+  const result = await db.insert(complianceReports).values(report).returning({ id: complianceReports.id });
+  return result[0].id;
 }
 
 export async function updateComplianceReportVerification(
@@ -198,8 +200,8 @@ export async function listFrontingAlerts(organisationId?: number): Promise<Front
 export async function insertFrontingAlert(alert: InsertFrontingAlert): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const result = await db.insert(frontingAlerts).values(alert);
-  return (result[0] as any).insertId;
+  const result = await db.insert(frontingAlerts).values(alert).returning({ id: frontingAlerts.id });
+  return result[0].id;
 }
 
 export async function updateFrontingAlertStatus(id: number, status: "open" | "under_review" | "resolved" | "escalated", resolvedBy?: number, notes?: string) {
@@ -224,8 +226,8 @@ export async function listCharterReports(): Promise<CharterReport[]> {
 export async function insertCharterReport(report: InsertCharterReport): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const result = await db.insert(charterReports).values(report);
-  return (result[0] as any).insertId;
+  const result = await db.insert(charterReports).values(report).returning({ id: charterReports.id });
+  return result[0].id;
 }
 
 // ─── Registration Requests ────────────────────────────────────────────────────
@@ -239,8 +241,8 @@ export async function listRegistrationRequests(): Promise<RegistrationRequest[]>
 export async function insertRegistrationRequest(req: InsertRegistrationRequest): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const result = await db.insert(registrationRequests).values(req);
-  return (result[0] as any).insertId;
+  const result = await db.insert(registrationRequests).values(req).returning({ id: registrationRequests.id });
+  return result[0].id;
 }
 
 export async function updateRegistrationRequestStatus(id: number, status: "pending" | "approved" | "rejected", reviewedBy?: number) {
