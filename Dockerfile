@@ -1,19 +1,4 @@
-FROM node:22-alpine AS builder
-
-RUN npm install -g pnpm@9
-
-WORKDIR /app
-
-COPY package.json pnpm-lock.yaml ./
-COPY patches/ ./patches/
-
-RUN pnpm install --frozen-lockfile
-
-COPY . .
-
-RUN pnpm build
-
-FROM node:22-alpine AS runner
+FROM node:22-alpine
 
 RUN npm install -g pnpm@9
 
@@ -24,7 +9,7 @@ COPY patches/ ./patches/
 
 RUN pnpm install --frozen-lockfile --prod
 
-COPY --from=builder /app/dist ./dist
+COPY dist/ ./dist/
 
 EXPOSE 3000
 
