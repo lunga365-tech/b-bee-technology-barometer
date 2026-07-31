@@ -218,6 +218,26 @@ export const appRouter = router({
     allAlerts: adminProcedure.query(() => db.listFrontingAlerts()),
     allRegistrations: adminProcedure.query(() => db.listRegistrationRequests()),
   }),
+
+  // ─── Diagnostic (temporary) ─────────────────────────────────────────────────
+  diagnostic: router({
+    dbCheck: publicProcedure.query(async () => {
+      const { Pool } = await import("pg");
+      const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+      try {
+        const client = await pool.connect();
+        const result = await client.query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name");
+        const cols = await client.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'organisations' ORDER BY ordinal_position");
+        client.release();
+        await pool.end();
+        return { tables: result.rows.map((r: any) => r.table_name), orgColumns: cols.rows.map((r: any) => r.column_name) };
+      } catch (err: any) {
+        await pool.end().catch(() => {});
+        return { error: err.message, code: err.code };
+      }
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
+// Temporary diagnostic endpoint - remove after debugging
