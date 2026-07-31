@@ -71,6 +71,7 @@
 - [x] Alert management
 
 ## Infrastructure
-- [ ] Custom domain DNS: b-beetechnologybarometer.co.za — requires user to set CNAME in Cloudflare after publishing
-  - [x] Checkpoint saved (version 988071d7 — redesign with PRSA/B-BBEE Commission institutional identity, Examiner + Verifier roles)
-- [ ] Published to permanent URL — user must click Publish button in Management UI
+- [x] Custom domain DNS: b-bbeetechnologybarometer.co.za — LIVE via Cloudflare → Render.com (confirmed HTTP 200)
+  - [x] Checkpoint saved (version 52977317 — seed data added for production database)
+- [x] Published to permanent URL — https://b-bbeetechnologybarometer.co.za is live
+- [x] Demo organisations seeded in production database on startup (10 maritime entities with TAI scores)
