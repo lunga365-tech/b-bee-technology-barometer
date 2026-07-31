@@ -72,5 +72,5 @@
 
 ## Infrastructure
 - [ ] Custom domain DNS: b-beetechnologybarometer.co.za — requires user to set CNAME in Cloudflare after publishing
-- [x] Checkpoint saved (version 4ad6459c)
+  - [x] Checkpoint saved (version 988071d7 — redesign with PRSA/B-BBEE Commission institutional identity, Examiner + Verifier roles)
 - [ ] Published to permanent URL — user must click Publish button in Management UI
