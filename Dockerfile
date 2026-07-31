@@ -19,8 +19,7 @@ RUN pnpm build
 # Prune dev dependencies after build
 RUN pnpm prune --prod
 
-EXPOSE 3000
-
 ENV NODE_ENV=production
+EXPOSE 10000
 
 CMD ["node", "dist/index.js"]

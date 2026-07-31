@@ -1,7 +1,5 @@
 node_modules
 .git
 .manus-logs
-client/
-server/
-shared/
-drizzle/
+dist
+*.log
