@@ -71,8 +71,16 @@ export const appRouter = router({
       const reports = await db.listComplianceReports();
       const orgs = await db.listOrganisations(true);
       const orgMap = new Map(orgs.map((o) => [o.id, o]));
-      return reports.map((r) => ({ ...r, organisation: orgMap.get(r.organisationId) }));
+    return reports.map((r) => ({ ...r, organisation: orgMap.get(r.organisationId) }));
     }),
+
+    verify: protectedProcedure
+      .input(z.object({ reportId: z.number(), status: z.enum(["verified", "rejected"]) }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "verifier" && ctx.user.role !== "admin")
+          throw new TRPCError({ code: "FORBIDDEN", message: "Verifier access required" });
+        return db.updateComplianceReportVerification(input.reportId, input.status, ctx.user.id);
+      }),
   }),
 
   // ─── Fronting Alerts ────────────────────────────────────────────────────────
@@ -87,6 +95,14 @@ export const appRouter = router({
       const orgMap = new Map(orgs.map((o) => [o.id, o]));
       return alerts.map((a) => ({ ...a, organisation: orgMap.get(a.organisationId) }));
     }),
+
+    resolve: protectedProcedure
+      .input(z.object({ alertId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "verifier" && ctx.user.role !== "admin")
+          throw new TRPCError({ code: "FORBIDDEN", message: "Verifier access required" });
+        return db.updateFrontingAlertStatus(input.alertId, "resolved", ctx.user.id);
+      }),
 
     updateStatus: adminProcedure
       .input(z.object({
@@ -205,4 +221,3 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
-

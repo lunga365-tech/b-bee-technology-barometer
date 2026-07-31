@@ -71,6 +71,6 @@
 - [x] Alert management
 
 ## Infrastructure
-- [ ] Custom domain DNS: b-beetechnologybarometer.co.za
-- [x] Checkpoint saved
-- [x] Published to permanent URL
+- [ ] Custom domain DNS: b-beetechnologybarometer.co.za — requires user to set CNAME in Cloudflare after publishing
+- [x] Checkpoint saved (version 4ad6459c)
+- [ ] Published to permanent URL — user must click Publish button in Management UI

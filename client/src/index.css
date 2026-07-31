@@ -1,230 +1,167 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=Playfair+Display:wght@600;700&display=swap");
-
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   INSTITUTIONAL DESIGN SYSTEM
+   PRSA Teal + B-BBEE Commission Gold
+   ============================================================ */
+
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
+  /* Fonts */
+  --font-sans: 'Roboto', system-ui, sans-serif;
+  --font-serif: 'Merriweather', Georgia, serif;
 
-:root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
-}
+  /* PRSA Teal (primary) */
+  --color-prsa-900: oklch(22% 0.06 200);
+  --color-prsa-800: oklch(28% 0.07 200);
+  --color-prsa-700: oklch(35% 0.09 200);
+  --color-prsa-600: oklch(42% 0.11 200);
+  --color-prsa-500: oklch(49% 0.13 200);
+  --color-prsa-400: oklch(58% 0.14 200);
+  --color-prsa-300: oklch(68% 0.12 200);
+  --color-prsa-200: oklch(80% 0.08 200);
+  --color-prsa-100: oklch(92% 0.04 200);
+  --color-prsa-50:  oklch(97% 0.02 200);
 
-.dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  /* B-BBEE Commission Gold/Amber (accent) */
+  --color-gold-900: oklch(25% 0.08 55);
+  --color-gold-800: oklch(32% 0.10 55);
+  --color-gold-700: oklch(42% 0.13 55);
+  --color-gold-600: oklch(52% 0.16 55);
+  --color-gold-500: oklch(62% 0.18 55);
+  --color-gold-400: oklch(70% 0.18 55);
+  --color-gold-300: oklch(78% 0.15 55);
+  --color-gold-200: oklch(87% 0.10 55);
+  --color-gold-100: oklch(94% 0.05 55);
+  --color-gold-50:  oklch(98% 0.02 55);
+
+  /* Navy (header/dark surfaces) */
+  --color-navy-950: oklch(13% 0.04 240);
+  --color-navy-900: oklch(17% 0.05 240);
+  --color-navy-800: oklch(22% 0.06 240);
+  --color-navy-700: oklch(28% 0.07 240);
+  --color-navy-600: oklch(35% 0.07 240);
+
+  /* Semantic tokens */
+  --color-background: oklch(99% 0.002 240);
+  --color-foreground: oklch(15% 0.03 240);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(15% 0.03 240);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(15% 0.03 240);
+  --color-primary: oklch(42% 0.11 200);
+  --color-primary-foreground: oklch(99% 0 0);
+  --color-secondary: oklch(94% 0.04 200);
+  --color-secondary-foreground: oklch(28% 0.07 200);
+  --color-muted: oklch(96% 0.01 240);
+  --color-muted-foreground: oklch(50% 0.03 240);
+  --color-accent: oklch(62% 0.18 55);
+  --color-accent-foreground: oklch(99% 0 0);
+  --color-destructive: oklch(55% 0.22 25);
+  --color-destructive-foreground: oklch(99% 0 0);
+  --color-border: oklch(88% 0.01 240);
+  --color-input: oklch(88% 0.01 240);
+  --color-ring: oklch(42% 0.11 200);
+  --radius: 0.375rem;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-size: 15px;
+    line-height: 1.6;
   }
-  button:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]),
-  [type="button"]:not(:disabled),
-  [type="submit"]:not(:disabled),
-  [type="reset"]:not(:disabled),
-  a[href],
-  select:not(:disabled),
-  input[type="checkbox"]:not(:disabled),
-  input[type="radio"]:not(:disabled) {
-    @apply cursor-pointer;
+  h1, h2, h3 {
+    font-family: 'Merriweather', Georgia, serif;
+    font-weight: 700;
+    line-height: 1.25;
+    color: oklch(17% 0.05 240);
+  }
+  h4, h5, h6 {
+    font-family: 'Roboto', system-ui, sans-serif;
+    font-weight: 600;
+    color: oklch(22% 0.06 240);
   }
 }
 
-@layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
+/* Utility classes for institutional design */
+@layer utilities {
+  .font-serif { font-family: 'Merriweather', Georgia, serif; }
+  .font-sans  { font-family: 'Roboto', system-ui, sans-serif; }
+
+  /* PRSA teal utilities */
+  .bg-prsa    { background-color: oklch(42% 0.11 200); }
+  .bg-prsa-dark { background-color: oklch(28% 0.07 200); }
+  .bg-prsa-light { background-color: oklch(92% 0.04 200); }
+  .text-prsa  { color: oklch(42% 0.11 200); }
+  .text-prsa-dark { color: oklch(28% 0.07 200); }
+  .border-prsa { border-color: oklch(42% 0.11 200); }
+
+  /* Gold/amber utilities */
+  .bg-gold     { background-color: oklch(62% 0.18 55); }
+  .bg-gold-dark { background-color: oklch(42% 0.13 55); }
+  .bg-gold-light { background-color: oklch(94% 0.05 55); }
+  .text-gold   { color: oklch(62% 0.18 55); }
+  .text-gold-dark { color: oklch(42% 0.13 55); }
+  .border-gold { border-color: oklch(62% 0.18 55); }
+
+  /* Navy utilities */
+  .bg-navy     { background-color: oklch(17% 0.05 240); }
+  .bg-navy-dark { background-color: oklch(13% 0.04 240); }
+  .text-navy   { color: oklch(17% 0.05 240); }
+
+  /* Institutional section */
+  .section-stripe {
+    background-color: oklch(97% 0.01 240);
+    border-top: 3px solid oklch(42% 0.11 200);
+  }
+
+  /* Government-grade card */
+  .gov-card {
+    background: white;
+    border: 1px solid oklch(88% 0.01 240);
+    border-top: 3px solid oklch(42% 0.11 200);
+    border-radius: 2px;
+    box-shadow: 0 1px 4px oklch(0% 0 0 / 0.06);
+  }
+
+  /* Gold accent card */
+  .gold-card {
+    background: white;
+    border: 1px solid oklch(88% 0.01 240);
+    border-top: 3px solid oklch(62% 0.18 55);
+    border-radius: 2px;
+    box-shadow: 0 1px 4px oklch(0% 0 0 / 0.06);
+  }
+
+  /* Status badges */
+  .badge-emerging   { background: oklch(94% 0.05 55); color: oklch(42% 0.13 55); }
+  .badge-established { background: oklch(92% 0.04 200); color: oklch(28% 0.07 200); }
+  .badge-leading    { background: oklch(92% 0.05 145); color: oklch(28% 0.09 145); }
+
+  /* Role badges */
+  .badge-examiner  { background: oklch(90% 0.06 280); color: oklch(30% 0.10 280); }
+  .badge-verifier  { background: oklch(90% 0.07 145); color: oklch(28% 0.09 145); }
+  .badge-admin     { background: oklch(90% 0.08 25);  color: oklch(30% 0.12 25); }
+
+  /* Container */
   .container {
     width: 100%;
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
-    padding-right: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
-  .flex {
-    min-height: 0;
-    min-width: 0;
-  }
+  /* Flex min-width fix */
+  .flex { min-width: 0; min-height: 0; }
 
-  @media (min-width: 640px) {
-    .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
-      padding-right: 1.5rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .container {
-      padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
-    }
-  }
-}
-
-@theme inline {
-  --color-background: oklch(0.99 0.002 240);
-  --color-foreground: oklch(0.15 0.01 240);
-  --color-card: oklch(1 0 0);
-  --color-card-foreground: oklch(0.15 0.01 240);
-  --color-popover: oklch(1 0 0);
-  --color-popover-foreground: oklch(0.15 0.01 240);
-  --color-primary: oklch(0.28 0.08 250);
-  --color-primary-foreground: oklch(0.98 0 0);
-  --color-secondary: oklch(0.96 0.01 240);
-  --color-secondary-foreground: oklch(0.28 0.08 250);
-  --color-muted: oklch(0.96 0.005 240);
-  --color-muted-foreground: oklch(0.5 0.02 240);
-  --color-accent: oklch(0.93 0.03 250);
-  --color-accent-foreground: oklch(0.28 0.08 250);
-  --color-destructive: oklch(0.55 0.22 27);
-  --color-destructive-foreground: oklch(0.98 0 0);
-  --color-border: oklch(0.9 0.01 240);
-  --color-input: oklch(0.9 0.01 240);
-  --color-ring: oklch(0.28 0.08 250);
-  --color-gold: oklch(0.72 0.12 85);
-  --color-gold-light: oklch(0.95 0.04 85);
-  --color-emerald: oklch(0.55 0.15 160);
-  --color-emerald-light: oklch(0.93 0.05 160);
-  --color-amber: oklch(0.72 0.15 75);
-  --color-amber-light: oklch(0.96 0.04 75);
-  --color-navy: oklch(0.22 0.07 255);
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Playfair Display", Georgia, serif;
-}
-
-@layer base {
-  * { @apply border-border; }
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  }
-  h1, h2, h3 { font-family: var(--font-display); }
-}
-
-@layer utilities {
-  .font-display { font-family: var(--font-display); }
-  .text-balance { text-wrap: balance; }
-  .gradient-navy { background: linear-gradient(135deg, oklch(0.22 0.07 255) 0%, oklch(0.28 0.08 250) 100%); }
-  .gradient-gold { background: linear-gradient(135deg, oklch(0.65 0.14 85) 0%, oklch(0.72 0.12 85) 100%); }
+  /* Button active scale */
+  button:active { transform: scale(0.98); }
 }

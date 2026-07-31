@@ -11,6 +11,8 @@ import Charter from "./pages/Charter";
 import Regulatory from "./pages/Regulatory";
 import CrossSector from "./pages/CrossSector";
 import Register from "./pages/Register";
+import Companies from "./pages/Companies";
+import Verify from "./pages/Verify";
 import Admin from "./pages/Admin";
 import NavLayout from "./components/NavLayout";
 
@@ -34,6 +36,12 @@ function Router() {
         {() => <NavLayout><CrossSector /></NavLayout>}
       </Route>
       <Route path="/register" component={Register} />
+      <Route path="/companies">
+        {() => <NavLayout><Companies /></NavLayout>}
+      </Route>
+      <Route path="/verify">
+        {() => <NavLayout><Verify /></NavLayout>}
+      </Route>
       <Route path="/admin">
         {() => <NavLayout><Admin /></NavLayout>}
       </Route>
@@ -57,4 +65,3 @@ function App() {
 }
 
 export default App;
-

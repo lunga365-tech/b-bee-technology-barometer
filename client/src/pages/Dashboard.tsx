@@ -1,40 +1,34 @@
 import { trpc } from "@/lib/trpc";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Legend,
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from "recharts";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, Building2, Award, TrendingUp } from "lucide-react";
+
+const TEAL = "#007A87";
+const GOLD = "#E8821A";
+const NAVY = "#0D2137";
 
 const SECTOR_BASELINE = [
-  { dimension: "Digital Infrastructure", score: 32, fill: "#3b82f6" },
-  { dimension: "Skills Readiness", score: 28, fill: "#f59e0b" },
-  { dimension: "Transformation Metrics", score: 45, fill: "#10b981" },
-  { dimension: "Innovation Culture", score: 22, fill: "#8b5cf6" },
+  { dimension: "Digital Infrastructure", score: 32, fill: TEAL },
+  { dimension: "Skills Readiness", score: 28, fill: GOLD },
+  { dimension: "Transformation Metrics", score: 45, fill: "#2E7D4F" },
+  { dimension: "Innovation Culture", score: 22, fill: "#5C4B8A" },
 ];
 
-const RADAR_DATA = SECTOR_BASELINE.map((d) => ({ subject: d.dimension.split(" ")[0], score: d.score, fullMark: 100 }));
+const RADAR_DATA = SECTOR_BASELINE.map(d => ({
+  subject: d.dimension.split(" ")[0],
+  score: d.score,
+  fullMark: 100,
+}));
 
-const classificationColor: Record<string, string> = {
-  Emerging: "bg-amber-100 text-amber-800 border-amber-200",
-  Established: "bg-blue-100 text-blue-800 border-blue-200",
-  Leading: "bg-emerald-100 text-emerald-800 border-emerald-200",
+const CLASSIFICATION_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  Emerging:    { bg: "#E8821A18", text: "#9A4E00", border: "#E8821A40" },
+  Established: { bg: "#007A8718", text: "#004D57", border: "#007A8740" },
+  Leading:     { bg: "#2E7D4F18", text: "#1A4D2E", border: "#2E7D4F40" },
 };
 
-const orgTypeLabel: Record<string, string> = {
+const ORG_TYPE_LABELS: Record<string, string> = {
   terminal_operator: "Terminal Operator",
   ship_agent: "Ship Agent",
   stevedore: "Stevedore",
@@ -47,170 +41,188 @@ const orgTypeLabel: Record<string, string> = {
   other: "Other",
 };
 
-export default function Dashboard() {
-  const { data: allLatest, isLoading } = trpc.tai.allLatest.useQuery();
-
+function ScoreCard({ label, score, color }: { label: string; score: number; color: string }) {
+  const level = score < 30 ? "Below threshold" : score < 50 ? "Developing" : score < 70 ? "Progressing" : "Advanced";
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div>
-        <h1 className="font-display text-3xl font-bold text-foreground">Technology Adoption Index Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Sector baseline scores and entity-level TAI performance across the maritime sector.</p>
+    <div className="bg-white rounded p-4" style={{ border: "1px solid #E5E7EB", borderTop: `3px solid ${color}` }}>
+      <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color }}>{label}</div>
+      <div className="flex items-end gap-1 mb-2">
+        <span className="text-3xl font-bold" style={{ fontFamily: "Merriweather, Georgia, serif", color: NAVY }}>{score}</span>
+        <span className="text-sm mb-1 ml-0.5" style={{ color: "#6B7280" }}>/100</span>
       </div>
-
-      {/* Demonstration Banner */}
-      <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
-        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-        <div>
-          <div className="font-semibold text-amber-800 text-sm">Demonstration Dataset</div>
-          <div className="text-amber-700 text-sm mt-0.5">
-            All maritime entities displayed below are <strong>seeded demonstration data</strong> and do not represent live registrations or actual B-BBEE compliance records. This dataset illustrates the platform's capabilities and establishes sector baselines for research purposes. Real organisations may register via the <a href="/register" className="underline font-medium">registration page</a>.
-          </div>
-        </div>
+      <div className="h-1.5 rounded-full bg-gray-100">
+        <div className="h-full rounded-full" style={{ width: `${score}%`, background: color }} />
       </div>
-
-      {/* Sector Baseline Cards */}
-      <div>
-        <h2 className="font-display text-xl font-semibold text-foreground mb-4">Sector Baseline — TAI Dimension Scores</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {SECTOR_BASELINE.map((dim) => (
-            <Card key={dim.dimension} className="border shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium text-muted-foreground">{dim.dimension}</span>
-                  <span className="text-2xl font-bold font-display" style={{ color: dim.fill }}>{dim.score}</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div className="h-2 rounded-full transition-all" style={{ width: `${dim.score}%`, backgroundColor: dim.fill }} />
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">out of 100</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-base">Sector Baseline — Bar Chart</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={SECTOR_BASELINE} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="dimension" tick={{ fontSize: 10 }} tickFormatter={(v) => v.split(" ")[0]} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(v) => [`${v}/100`, "TAI Score"]} />
-                <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-                  {SECTOR_BASELINE.map((entry) => (
-                    <Cell key={entry.dimension} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Radar Chart */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="font-display text-base">Sector Baseline — Radar Chart</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
-              <RadarChart data={RADAR_DATA}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
-                <Radar name="Sector Average" dataKey="score" stroke="#1e3a5f" fill="#1e3a5f" fillOpacity={0.25} />
-                <Tooltip formatter={(v) => [`${v}/100`, "Score"]} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Classification Breakdown */}
-      <Card className="border shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-display text-base">Entity Classification Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { label: "Emerging", pct: 60, desc: "TAI score 0–40 · Significant investment needed", color: "bg-amber-500" },
-              { label: "Established", pct: 20, desc: "TAI score 41–70 · Progressing toward digital maturity", color: "bg-blue-500" },
-              { label: "Leading", pct: 20, desc: "TAI score 71–100 · Digital transformation exemplar", color: "bg-emerald-500" },
-            ].map((cls) => (
-              <div key={cls.label} className="text-center p-4 rounded-lg bg-muted/40">
-                <div className="text-4xl font-bold font-display text-foreground">{cls.pct}%</div>
-                <div className="font-semibold text-foreground mt-1">{cls.label}</div>
-                <div className="text-xs text-muted-foreground mt-1">{cls.desc}</div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Entity Table */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-xl font-semibold text-foreground">Entity TAI Scores</h2>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Info className="w-3.5 h-3.5" />
-            Demonstration data only
-          </div>
-        </div>
-        {isLoading ? (
-          <div className="space-y-3">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
-        ) : (
-          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/40">
-                    <th className="text-left px-4 py-3 font-semibold text-foreground">Organisation</th>
-                    <th className="text-left px-4 py-3 font-semibold text-foreground hidden md:table-cell">Type</th>
-                    <th className="text-center px-3 py-3 font-semibold text-blue-600">Digital Infra</th>
-                    <th className="text-center px-3 py-3 font-semibold text-amber-600">Skills</th>
-                    <th className="text-center px-3 py-3 font-semibold text-emerald-600">Transform.</th>
-                    <th className="text-center px-3 py-3 font-semibold text-purple-600">Innovation</th>
-                    <th className="text-center px-3 py-3 font-semibold text-foreground">Total</th>
-                    <th className="text-center px-3 py-3 font-semibold text-foreground">Class.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(allLatest ?? []).map(({ org, score }) => (
-                    <tr key={org.id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-foreground">{org.name}</div>
-                        {org.isDemo && <Badge variant="outline" className="text-xs mt-0.5 text-amber-600 border-amber-200">Demo</Badge>}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{orgTypeLabel[org.orgType] ?? org.orgType}</td>
-                      <td className="px-3 py-3 text-center font-mono font-medium text-blue-600">{score ? Number(score.digitalInfrastructure).toFixed(0) : "—"}</td>
-                      <td className="px-3 py-3 text-center font-mono font-medium text-amber-600">{score ? Number(score.skillsReadiness).toFixed(0) : "—"}</td>
-                      <td className="px-3 py-3 text-center font-mono font-medium text-emerald-600">{score ? Number(score.transformationMetrics).toFixed(0) : "—"}</td>
-                      <td className="px-3 py-3 text-center font-mono font-medium text-purple-600">{score ? Number(score.innovationCulture).toFixed(0) : "—"}</td>
-                      <td className="px-3 py-3 text-center font-bold font-mono text-foreground">{score ? Number(score.totalScore).toFixed(1) : "—"}</td>
-                      <td className="px-3 py-3 text-center">
-                        {score && (
-                          <Badge className={`text-xs ${classificationColor[score.classification]}`}>{score.classification}</Badge>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {(!allLatest || allLatest.length === 0) && (
-                    <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No entity data available yet.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
+      <div className="text-xs mt-1" style={{ color: "#9CA3AF" }}>{level}</div>
     </div>
   );
 }
 
+function ClassBadge({ cls }: { cls: string }) {
+  const c = CLASSIFICATION_COLORS[cls] ?? { bg: "#F3F4F6", text: "#374151", border: "#D1D5DB" };
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+      style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>
+      {cls}
+    </span>
+  );
+}
+
+export default function Dashboard() {
+  const { data: allLatest, isLoading } = trpc.tai.allLatest.useQuery();
+
+  return (
+    <div>
+      {/* Demo banner */}
+      <div className="py-2.5 px-4 text-center text-xs font-medium"
+        style={{ background: "#FEF3C7", color: "#92400E", borderBottom: "1px solid #FDE68A" }}>
+        <AlertTriangle size={12} className="inline mr-1.5 mb-0.5" />
+        Demonstration Dataset — All displayed maritime entities are seeded demonstration data, not live registrations.
+      </div>
+
+      <div className="container py-8">
+        {/* Page header */}
+        <div className="mb-8 pb-4" style={{ borderBottom: "1px solid #E5E7EB" }}>
+          <div className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: TEAL }}>Technology Adoption Index</div>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: "Merriweather, Georgia, serif", color: NAVY }}>
+            TAI Dashboard — Maritime Sector Baseline
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "#6B7280" }}>
+            Sector-wide Technology Adoption Index scores across all four dimensions, aligned with the B-BBEE Commission monitoring framework.
+          </p>
+        </div>
+
+        {/* KPI row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <ScoreCard label="Digital Infrastructure" score={32} color={TEAL} />
+          <ScoreCard label="Skills Readiness" score={28} color={GOLD} />
+          <ScoreCard label="Transformation Metrics" score={45} color="#2E7D4F" />
+          <ScoreCard label="Innovation Culture" score={22} color="#5C4B8A" />
+        </div>
+
+        {/* Charts row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded p-5" style={{ border: "1px solid #E5E7EB", borderTop: `3px solid ${TEAL}` }}>
+            <div className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: TEAL }}>
+              Sector Baseline — All Dimensions
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={SECTOR_BASELINE} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
+                <XAxis dataKey="dimension" tick={{ fontSize: 10, fill: "#6B7280" }} tickFormatter={v => v.split(" ")[0]} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#6B7280" }} />
+                <Tooltip formatter={(v: number) => [`${v}/100`, "TAI Score"]}
+                  contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #E5E7EB" }} />
+                <Bar dataKey="score" radius={[2, 2, 0, 0]}>
+                  {SECTOR_BASELINE.map((e, i) => <Cell key={i} fill={e.fill} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="bg-white rounded p-5" style={{ border: "1px solid #E5E7EB", borderTop: `3px solid ${GOLD}` }}>
+            <div className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: GOLD }}>
+              Sector Radar Profile
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <RadarChart data={RADAR_DATA} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+                <PolarGrid stroke="#E5E7EB" />
+                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11, fill: "#374151" }} />
+                <Radar name="Sector" dataKey="score" stroke={TEAL} fill={TEAL} fillOpacity={0.18} strokeWidth={2} />
+                <Tooltip formatter={(v: number) => [`${v}/100`, "Score"]}
+                  contentStyle={{ fontSize: 12, borderRadius: 4, border: "1px solid #E5E7EB" }} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Classification summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {[
+            { label: "Emerging", pct: 60, desc: "TAI 0–40 · Significant investment needed", color: GOLD, icon: Building2 },
+            { label: "Established", pct: 20, desc: "TAI 41–70 · Progressing toward digital maturity", color: TEAL, icon: TrendingUp },
+            { label: "Leading", pct: 20, desc: "TAI 71–100 · Digital transformation exemplar", color: "#2E7D4F", icon: Award },
+          ].map(c => (
+            <div key={c.label} className="bg-white rounded p-4 flex items-center gap-4"
+              style={{ border: "1px solid #E5E7EB", borderLeft: `4px solid ${c.color}` }}>
+              <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0"
+                style={{ background: `${c.color}18` }}>
+                <c.icon size={20} style={{ color: c.color }} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold" style={{ fontFamily: "Merriweather, Georgia, serif", color: NAVY }}>{c.pct}%</div>
+                <div className="text-xs font-semibold" style={{ color: c.color }}>{c.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: "#9CA3AF" }}>{c.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Entity table */}
+        <div className="bg-white rounded overflow-hidden" style={{ border: "1px solid #E5E7EB", borderTop: `3px solid ${TEAL}` }}>
+          <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: "#E5E7EB" }}>
+            <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: TEAL }}>
+              Registered Entities — Demonstration Dataset
+            </div>
+            <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: "#FEF3C7", color: "#92400E" }}>
+              Demo Data
+            </span>
+          </div>
+          {isLoading ? (
+            <div className="p-8 text-center text-sm" style={{ color: "#9CA3AF" }}>Loading entities…</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ background: "#F9FAFB", borderBottom: "1px solid #E5E7EB" }}>
+                    {["Organisation", "Type", "Digital Infra", "Skills", "Transform.", "Innovation", "Total", "Class."].map(h => (
+                      <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "#6B7280" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {(allLatest ?? []).map(({ org, score }, i) => (
+                    <tr key={org.id} className="border-b transition-colors"
+                      style={{ borderColor: "#F3F4F6", background: i % 2 === 0 ? "white" : "#FAFAFA" }}>
+                      <td className="px-4 py-3">
+                        <div className="font-medium" style={{ color: NAVY }}>{org.name}</div>
+                        {org.isDemo && (
+                          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "#FEF3C7", color: "#92400E" }}>Demo</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs" style={{ color: "#6B7280" }}>
+                        {ORG_TYPE_LABELS[org.orgType] ?? org.orgType}
+                      </td>
+                      <td className="px-4 py-3 text-center font-mono font-semibold text-sm" style={{ color: TEAL }}>
+                        {score ? Number(score.digitalInfrastructure).toFixed(0) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-center font-mono font-semibold text-sm" style={{ color: GOLD }}>
+                        {score ? Number(score.skillsReadiness).toFixed(0) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-center font-mono font-semibold text-sm" style={{ color: "#2E7D4F" }}>
+                        {score ? Number(score.transformationMetrics).toFixed(0) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-center font-mono font-semibold text-sm" style={{ color: "#5C4B8A" }}>
+                        {score ? Number(score.innovationCulture).toFixed(0) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-center font-bold font-mono" style={{ color: NAVY }}>
+                        {score ? Number(score.totalScore).toFixed(1) : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {score && <ClassBadge cls={score.classification} />}
+                      </td>
+                    </tr>
+                  ))}
+                  {(!allLatest || allLatest.length === 0) && (
+                    <tr><td colSpan={8} className="px-4 py-8 text-center text-sm" style={{ color: "#9CA3AF" }}>No entity data available.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

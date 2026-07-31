@@ -162,9 +162,26 @@ export async function listComplianceReports(organisationId?: number): Promise<Co
 
 export async function insertComplianceReport(report: InsertComplianceReport): Promise<number> {
   const db = await getDb();
-  if (!db) throw new Error("DB not available");
+  if (!db) throw new Error("Database not available");
   const result = await db.insert(complianceReports).values(report);
-  return (result[0] as any).insertId;
+  return (result[0] as { insertId: number }).insertId;
+}
+
+export async function updateComplianceReportVerification(
+  id: number,
+  status: "verified" | "rejected",
+  verifiedBy: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(complianceReports)
+    .set({
+      verifiedAt: new Date(),
+      status: status === "verified" ? "verified" : "flagged",
+    })
+    .where(eq(complianceReports.id, id));
+  return { success: true };
 }
 
 // ─── Fronting Alerts ──────────────────────────────────────────────────────────
@@ -235,4 +252,3 @@ export async function updateRegistrationRequestStatus(id: number, status: "pendi
     reviewedBy: reviewedBy ?? undefined,
   }).where(eq(registrationRequests.id, id));
 }
-

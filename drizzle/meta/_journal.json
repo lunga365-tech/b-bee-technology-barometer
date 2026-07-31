@@ -15,6 +15,13 @@
       "when": 1785456619113,
       "tag": "0001_messy_vance_astro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1785469959545,
+      "tag": "0002_naive_molly_hayes",
+      "breakpoints": true
     }
   ]
 }
