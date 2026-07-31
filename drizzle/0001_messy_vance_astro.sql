@@ -1,0 +1,121 @@
+CREATE TABLE `charter_reports` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`title` varchar(255) NOT NULL,
+	`reportingPeriod` varchar(20) NOT NULL,
+	`totalEntities` int NOT NULL,
+	`emergingCount` int NOT NULL,
+	`establishedCount` int NOT NULL,
+	`leadingCount` int NOT NULL,
+	`avgDigitalInfrastructure` decimal(5,2),
+	`avgSkillsReadiness` decimal(5,2),
+	`avgTransformationMetrics` decimal(5,2),
+	`avgInnovationCulture` decimal(5,2),
+	`avgTotalScore` decimal(5,2),
+	`frontingAlertsCount` int DEFAULT 0,
+	`summary` text,
+	`generatedBy` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `charter_reports_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `compliance_reports` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`organisationId` int NOT NULL,
+	`reportingPeriod` varchar(20) NOT NULL,
+	`totalSdExpenditure` decimal(15,2),
+	`fourirSdExpenditure` decimal(15,2),
+	`fourirSdPercentage` decimal(5,2),
+	`digitalSkillsWeightingTarget` decimal(5,2) DEFAULT '25.00',
+	`equitableAccessBonus` boolean DEFAULT false,
+	`equitableAccessScore` decimal(5,2) DEFAULT '0.00',
+	`esdTechContributions` decimal(15,2),
+	`esdTechRecognised` boolean DEFAULT false,
+	`esdScore` decimal(5,2),
+	`claimedLearnersCount` int,
+	`verifiedLearnersCount` int,
+	`overallComplianceScore` decimal(5,2),
+	`status` enum('draft','submitted','verified','flagged') NOT NULL DEFAULT 'draft',
+	`submittedAt` timestamp,
+	`verifiedAt` timestamp,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `compliance_reports_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `fronting_alerts` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`organisationId` int NOT NULL,
+	`complianceReportId` int,
+	`alertType` enum('expenditure_learner_gap','ownership_mismatch','training_outcome_gap','documentation_anomaly') NOT NULL,
+	`severity` enum('low','medium','high') NOT NULL,
+	`description` text NOT NULL,
+	`claimedValue` varchar(100),
+	`verifiedValue` varchar(100),
+	`gapPercentage` decimal(5,2),
+	`status` enum('open','under_review','resolved','escalated') NOT NULL DEFAULT 'open',
+	`resolvedAt` timestamp,
+	`resolvedBy` int,
+	`notes` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `fronting_alerts_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `organisations` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`orgType` enum('terminal_operator','ship_agent','stevedore','bunker_supplier','freight_forwarder','training_provider','port_service','shipping_line','marine_surveyor','other') NOT NULL,
+	`registrationNumber` varchar(100),
+	`samsaNumber` varchar(100),
+	`tetaAccredited` boolean DEFAULT false,
+	`saasoa` boolean DEFAULT false,
+	`saaff` boolean DEFAULT false,
+	`contactName` varchar(255),
+	`contactEmail` varchar(320),
+	`contactPhone` varchar(50),
+	`province` varchar(100),
+	`city` varchar(100),
+	`isDemo` boolean NOT NULL DEFAULT false,
+	`status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+	`approvedAt` timestamp,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `organisations_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `registration_requests` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`orgName` varchar(255) NOT NULL,
+	`orgType` varchar(100) NOT NULL,
+	`registrationNumber` varchar(100),
+	`samsaNumber` varchar(100),
+	`tetaAccredited` boolean DEFAULT false,
+	`saasoa` boolean DEFAULT false,
+	`saaff` boolean DEFAULT false,
+	`contactName` varchar(255) NOT NULL,
+	`contactEmail` varchar(320) NOT NULL,
+	`contactPhone` varchar(50),
+	`province` varchar(100),
+	`city` varchar(100),
+	`message` text,
+	`status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+	`reviewedAt` timestamp,
+	`reviewedBy` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `registration_requests_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `tai_scores` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`organisationId` int NOT NULL,
+	`reportingPeriod` varchar(20) NOT NULL,
+	`digitalInfrastructure` decimal(5,2) NOT NULL,
+	`skillsReadiness` decimal(5,2) NOT NULL,
+	`transformationMetrics` decimal(5,2) NOT NULL,
+	`innovationCulture` decimal(5,2) NOT NULL,
+	`totalScore` decimal(5,2) NOT NULL,
+	`classification` enum('Emerging','Established','Leading') NOT NULL,
+	`notes` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `tai_scores_id` PRIMARY KEY(`id`)
+);

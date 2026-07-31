@@ -5,31 +5,48 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Compliance from "./pages/Compliance";
+import Charter from "./pages/Charter";
+import Regulatory from "./pages/Regulatory";
+import CrossSector from "./pages/CrossSector";
+import Register from "./pages/Register";
+import Admin from "./pages/Admin";
+import NavLayout from "./components/NavLayout";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/dashboard">
+        {() => <NavLayout><Dashboard /></NavLayout>}
+      </Route>
+      <Route path="/compliance">
+        {() => <NavLayout><Compliance /></NavLayout>}
+      </Route>
+      <Route path="/charter">
+        {() => <NavLayout><Charter /></NavLayout>}
+      </Route>
+      <Route path="/regulatory">
+        {() => <NavLayout><Regulatory /></NavLayout>}
+      </Route>
+      <Route path="/cross-sector">
+        {() => <NavLayout><CrossSector /></NavLayout>}
+      </Route>
+      <Route path="/register" component={Register} />
+      <Route path="/admin">
+        {() => <NavLayout><Admin /></NavLayout>}
+      </Route>
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />
@@ -40,3 +57,4 @@ function App() {
 }
 
 export default App;
+
