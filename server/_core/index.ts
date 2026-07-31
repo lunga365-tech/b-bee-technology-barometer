@@ -11,6 +11,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { seedDemoData } from "../seed";
 
 async function runMigrations() {
   if (!process.env.DATABASE_URL) return;
@@ -64,6 +65,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 
 async function startServer() {
   await runMigrations();
+  await seedDemoData();
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
