@@ -7,9 +7,17 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 COPY patches/ ./patches/
 
-RUN pnpm install --frozen-lockfile --prod
+# Install all deps (including dev deps needed for build)
+RUN pnpm install --frozen-lockfile
 
-COPY dist/ ./dist/
+# Copy all source files
+COPY . .
+
+# Build the application
+RUN pnpm build
+
+# Prune dev dependencies after build
+RUN pnpm prune --prod
 
 EXPOSE 3000
 
