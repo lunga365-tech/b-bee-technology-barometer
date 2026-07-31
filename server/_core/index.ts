@@ -18,27 +18,41 @@ async function runMigrations() {
   try {
     const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
     const client = await pool.connect();
-    // Find migration SQL file
+    // Find all migration SQL files and run them in order
     const migrationDirs = [
       path.join(process.cwd(), "drizzle"),
       path.join(__dirname, "../../drizzle"),
     ];
-    let migrationSql = "";
+    let migrationDir = "";
     for (const dir of migrationDirs) {
-      const sqlFile = fs.readdirSync(dir).find(f => f.endsWith(".sql"));
-      if (sqlFile) {
-        migrationSql = fs.readFileSync(path.join(dir, sqlFile), "utf-8");
-        break;
-      }
+      try {
+        if (fs.existsSync(dir)) { migrationDir = dir; break; }
+      } catch (_) {}
     }
-    if (!migrationSql) { client.release(); await pool.end(); return; }
-    const statements = migrationSql.split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
-    for (const stmt of statements) {
-      try { await client.query(stmt); } catch (_) { /* already exists */ }
+    if (!migrationDir) { client.release(); await pool.end(); return; }
+    const sqlFiles = fs.readdirSync(migrationDir)
+      .filter(f => f.endsWith(".sql"))
+      .sort();
+    let totalStatements = 0;
+    for (const sqlFile of sqlFiles) {
+      const migrationSql = fs.readFileSync(path.join(migrationDir, sqlFile), "utf-8");
+      const statements = migrationSql.split("--> statement-breakpoint").map(s => s.trim()).filter(Boolean);
+      for (const stmt of statements) {
+        try {
+          await client.query(stmt);
+          totalStatements++;
+        } catch (err: any) {
+          // Log non-trivial errors (not "already exists")
+          const msg = err?.message || "";
+          if (!msg.includes("already exists") && !msg.includes("duplicate")) {
+            console.warn(`[Migration] Statement failed (${sqlFile}):`, msg.slice(0, 200));
+          }
+        }
+      }
     }
     client.release();
     await pool.end();
-    console.log("[Migration] Database schema applied successfully");
+    console.log(`[Migration] Database schema applied successfully (${sqlFiles.length} files, ${totalStatements} statements)`);
   } catch (err) {
     console.warn("[Migration] Could not run migrations:", err);
   }

@@ -1,13 +1,13 @@
-CREATE TYPE "public"."alert_status" AS ENUM('open', 'under_review', 'resolved', 'escalated');--> statement-breakpoint
-CREATE TYPE "public"."alert_type" AS ENUM('expenditure_learner_gap', 'ownership_mismatch', 'training_outcome_gap', 'documentation_anomaly');--> statement-breakpoint
-CREATE TYPE "public"."classification" AS ENUM('Emerging', 'Established', 'Leading');--> statement-breakpoint
-CREATE TYPE "public"."compliance_status" AS ENUM('draft', 'submitted', 'verified', 'flagged');--> statement-breakpoint
-CREATE TYPE "public"."org_status" AS ENUM('pending', 'approved', 'rejected');--> statement-breakpoint
-CREATE TYPE "public"."org_type" AS ENUM('terminal_operator', 'ship_agent', 'stevedore', 'bunker_supplier', 'freight_forwarder', 'training_provider', 'port_service', 'shipping_line', 'marine_surveyor', 'other');--> statement-breakpoint
-CREATE TYPE "public"."reg_status" AS ENUM('pending', 'approved', 'rejected');--> statement-breakpoint
-CREATE TYPE "public"."severity" AS ENUM('low', 'medium', 'high');--> statement-breakpoint
-CREATE TYPE "public"."user_role" AS ENUM('user', 'admin', 'examiner', 'verifier');--> statement-breakpoint
-CREATE TABLE "charter_reports" (
+CREATE TYPE IF NOT EXISTS "public"."alert_status" AS ENUM('open', 'under_review', 'resolved', 'escalated');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."alert_type" AS ENUM('expenditure_learner_gap', 'ownership_mismatch', 'training_outcome_gap', 'documentation_anomaly');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."classification" AS ENUM('Emerging', 'Established', 'Leading');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."compliance_status" AS ENUM('draft', 'submitted', 'verified', 'flagged');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."org_status" AS ENUM('pending', 'approved', 'rejected');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."org_type" AS ENUM('terminal_operator', 'ship_agent', 'stevedore', 'bunker_supplier', 'freight_forwarder', 'training_provider', 'port_service', 'shipping_line', 'marine_surveyor', 'other');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."reg_status" AS ENUM('pending', 'approved', 'rejected');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."severity" AS ENUM('low', 'medium', 'high');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."user_role" AS ENUM('user', 'admin', 'examiner', 'verifier');--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "charter_reports" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"reportingPeriod" varchar(20) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE "charter_reports" (
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "compliance_reports" (
+CREATE TABLE IF NOT EXISTS "compliance_reports" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"organisationId" integer NOT NULL,
 	"reportingPeriod" varchar(20) NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE "compliance_reports" (
 	"updatedAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "fronting_alerts" (
+CREATE TABLE IF NOT EXISTS "fronting_alerts" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"organisationId" integer NOT NULL,
 	"complianceReportId" integer,
@@ -67,7 +67,7 @@ CREATE TABLE "fronting_alerts" (
 	"updatedAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "organisations" (
+CREATE TABLE IF NOT EXISTS "organisations" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"orgType" "org_type" NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE "organisations" (
 	"updatedAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "registration_requests" (
+CREATE TABLE IF NOT EXISTS "registration_requests" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"orgName" varchar(255) NOT NULL,
 	"orgType" varchar(100) NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE "registration_requests" (
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "tai_scores" (
+CREATE TABLE IF NOT EXISTS "tai_scores" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"organisationId" integer NOT NULL,
 	"reportingPeriod" varchar(20) NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE "tai_scores" (
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"openId" varchar(64) NOT NULL,
 	"name" text,
